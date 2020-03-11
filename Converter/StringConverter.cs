@@ -1,25 +1,25 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 
 namespace Converter
 {
     public static class StringConverter
     {
-        public static int? ParseString(string str)
+        private static readonly Regex matchDigitsRegex = new Regex(@"^[-+]?[1-9][0-9]*");
+
+        public static bool IsConvertibleToInt(this string str)
         {
-            try
+            if (string.IsNullOrEmpty(str)) throw new ArgumentNullException();
+            if (!matchDigitsRegex.IsMatch(str)) throw new FormatException();
+
+            long longInt = 0;
+            foreach (char c in str)
             {
-                return Convert.ToInt32(str);
+                longInt *= 10;
+                longInt += c - '0';
             }
-            catch (FormatException e)
-            {
-                Console.WriteLine($"Unable to convert:Exception: {e.Message}");
-                return null;
-            }
-            catch (OverflowException e)
-            {
-                Console.WriteLine($"Unable to convert:Exception: {e.Message}");
-                return null;
-            }
+            if (longInt < Int32.MinValue && longInt > Int32.MaxValue) throw new OverflowException();
+            return true;
         }
     }
 }
